@@ -1,41 +1,81 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require("express");
+const basicAuth = require("express-basic-auth");
+const app = express();
+const bodyParser = require("body-parser");
+const { response } = require("express");
+const mongo = require("./mongo.js");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+app.use(
+  basicAuth({
+    users: {
+      jacques: "MyManJackyBoy",
+    },
+  })
+);
 
-var app = express();
+/**
+  START
+  SHELTER APIS
+*/
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+// Retrieve shelter data
+app.get("/shelters", async (req, res) => {
+  const data = await mongo.getMongoData("shelterData");
+  res.send(data);
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+/**
+  END
+  SHELTER APIS
+*/
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+/**
+  START
+  JACK POSTS APIS
+*/
+
+// Retrieve jack data
+app.get("/jackData", async (req, res) => {
+  const data = await mongo.getMongoData("jackData");
+  res.send(data);
 });
 
-module.exports = app;
+// Insert post
+app.post("/jackData", bodyParser.json(), async (req, res) => {
+  try {
+    const response = await mongo.insertMongoData("jackData", req.body);
+    res.status(200).send(`Post successfully inserted`);
+  } catch (error) {
+    res.status(500).send(`Error while attempting to insert post: ${error}`);
+  }
+});
+
+// Edit post
+app.put("/jackData", bodyParser.json(), async (req, res) => {
+  try {
+    const response = await mongo.editMongoData("jackData", req.body);
+    res.status(200).send(`Post successfully edited`);
+  } catch (error) {
+    res.status(500).send(`Error while attempting to edit post: ${error}`);
+  }
+});
+
+// Delete post
+/**
+  @param req pass objectId like so: { "_id" : ObjectId("636aef3cb7b07704bc64745c") }
+*/
+app.delete("/jackData", bodyParser.json(), async (req, res) => {
+  try {
+    const response = await mongo.deleteMongoData("jackData", req.body);
+    res.status(200).send(`Post successfully deleted`);
+  } catch (error) {
+    res.status(500).send(`Error while attempting to delete post: ${error}`);
+  }
+});
+
+/**
+  END
+  JACK POSTS APIS
+*/
+
+app.listen(5000);
