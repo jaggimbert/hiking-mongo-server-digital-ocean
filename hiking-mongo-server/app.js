@@ -4,7 +4,9 @@ const app = express();
 const bodyParser = require("body-parser");
 const { response } = require("express");
 const mongo = require("./mongo.js");
+const cors = require("cors");
 
+app.use(cors());
 app.use(
   basicAuth({
     users: {
