@@ -6,7 +6,11 @@ const { response } = require("express");
 const mongo = require("./mongo.js");
 const cors = require("cors");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5000",
+  })
+);
 app.use(
   basicAuth({
     users: {
