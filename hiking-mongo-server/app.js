@@ -25,8 +25,8 @@ const postSchema = new Schema(
     createddate: String,
     title: String,
     description: String,
-    lat: String,
-    lng: String,
+    lat: Number,
+    lng: Number,
     video_url: String,
   },
   { collection: "jackData" }
