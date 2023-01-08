@@ -28,6 +28,7 @@ const postSchema = new Schema(
     lat: Number,
     lng: Number,
     video_url: String,
+    unix_time: Number,
   },
   { collection: "jackData" }
 );
@@ -37,10 +38,9 @@ const postData = mongoose.model("PostData", postSchema);
 app.use(cors());
 
 // Retrieve jack data
-app.get("/jackData", (req, res, next) => {
-  postData.find((err, data) => {
-    res.send(data);
-  });
+app.get("/jackData", async (req, res, next) => {
+  const docs = await postData.find().sort({ unix_time: -1 });
+  res.send(docs);
 });
 
 app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
@@ -51,6 +51,7 @@ app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
     lat: req.body.lat,
     lng: req.body.lng,
     video_url: req.body.video_url ? req.body.video_url : "",
+    unix_time: Date.now(),
   };
 
   let data = new postData(post);
