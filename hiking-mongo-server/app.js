@@ -1,13 +1,19 @@
 const express = require("express");
-const basicAuth = require("express-basic-auth");
 const app = express();
 const bodyParser = require("body-parser");
-const { response } = require("express");
-const mongo = require("./mongo.js");
 const cors = require("cors");
-const mongoClient = require("./mongoClient.js");
-const client = mongoClient.getMongoClient();
 const mongoose = require("mongoose");
+
+const isAuth = (req, res, next) => {
+  const auth = req.headers.authorization;
+  console.log(auth);
+  if (auth === "Basic amFjcXVlczpNeU1hbkphY2t5Qm95") {
+    next();
+  } else {
+    res.status(401);
+    res.send("Access forbidden");
+  }
+};
 
 mongoose.connect(
   "mongodb+srv://jaggimbert:jiggaboo23@cluster0.pshyhnp.mongodb.net/mydb"
@@ -28,96 +34,66 @@ const postSchema = new Schema(
 
 const postData = mongoose.model("PostData", postSchema);
 
+app.use(cors());
+
 // Retrieve jack data
-app.get("/jackData", async (req, res, next) => {
+app.get("/jackData", (req, res, next) => {
   postData.find((err, data) => {
-    console.log(data);
     res.send(data);
   });
 });
 
-// app.use(cors());
-// app.use(
-//   basicAuth({
-//     users: {
-//       jacques: "MyManJackyBoy",
-//     },
-//   })
-// );
-// /**
-//   START UTILITY APIS
-// */
-// app.post("/shelters", async (req, res) => {
-//   const data = await mongo.getMongoData("shelterData", client);
-//   res.send(data);
-// });
-// /**
-//   END UTILITY APIS
-// */
+app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
+  let post = {
+    createddate: new Date(),
+    title: req.body.title,
+    description: req.body.description,
+    lat: req.body.lat,
+    lng: req.body.lng,
+    video_url: req.body.video_url ? req.body.video_url : "",
+  };
 
-// /**
-//   START
-//   SHELTER APIS
-// */
+  let data = new postData(post);
+  try {
+    data.save();
+    res.send("successful post").status(200);
+  } catch (err) {
+    res.send(`Error occurred while posting: ${err}`).status(500);
+  }
+});
 
-// // Retrieve shelter data
-// app.get("/shelters", async (req, res) => {
-//   const data = await mongo.getMongoData("shelterData", client);
-//   res.send(data);
-// });
+app.put("/jackData", isAuth, bodyParser.json(), async (req, res) => {
+  let id = req.body.id;
 
-// /**
-//   END
-//   SHELTER APIS
-// */
+  postData.findById(id, (err, post) => {
+    if (err) {
+      console.error("error, no post found with id: ", id);
+      res.status(500).send(`Error while attempting to edit post: ${error}`);
+    } else {
+      post.title = req.body.title;
+      post.description = req.body.description;
+      post.lat = req.body.lat;
+      post.lng = req.body.lng;
+      post.video_url = req.body.video_url;
 
-// /**
-//   START
-//   JACK POSTS APIS
-// */
+      try {
+        post.save();
+        res.status(200).send(`Post successfully edited`);
+      } catch (error) {
+        res.status(500).send(`Error while attempting to edit post: ${error}`);
+      }
+    }
+  });
+});
 
-// // Retrieve jack data
-// app.get("/jackData", async (req, res) => {
-//   const data = await mongo.getMongoData("jackData", client);
-//   res.send(data);
-// });
-
-// // Insert post
-// app.post("/jackData", bodyParser.json(), async (req, res) => {
-//   try {
-//     const response = await mongo.insertMongoData("jackData", client, req.body);
-//     res.status(200).send(`Post successfully inserted`);
-//   } catch (error) {
-//     res.status(500).send(`Error while attempting to insert post: ${error}`);
-//   }
-// });
-
-// // Edit post
-// app.put("/jackData", bodyParser.json(), async (req, res) => {
-//   try {
-//     const response = await mongo.editMongoData("jackData", client, req.body);
-//     res.status(200).send(`Post successfully edited`);
-//   } catch (error) {
-//     res.status(500).send(`Error while attempting to edit post: ${error}`);
-//   }
-// });
-
-// // Delete post
-// /**
-//   @param req pass objectId like so: { "_id" : ObjectId("636aef3cb7b07704bc64745c") }
-// */
-// app.delete("/jackData", bodyParser.json(), async (req, res) => {
-//   try {
-//     const response = await mongo.deleteMongoData("jackData", client, req.body);
-//     res.status(200).send(`Post successfully deleted`);
-//   } catch (error) {
-//     res.status(500).send(`Error while attempting to delete post: ${error}`);
-//   }
-// });
-
-// /**
-//   END
-//   JACK POSTS APIS
-// */
+app.delete("/jackData", isAuth, bodyParser.json(), async (req, res) => {
+  let id = req.body.id;
+  try {
+    postData.findByIdAndRemove(id).exec();
+    res.status(200).send(`Post successfully deleted`);
+  } catch (error) {
+    res.status(500).send(`Error while attempting to delete post: ${error}`);
+  }
+});
 
 app.listen(5000);
