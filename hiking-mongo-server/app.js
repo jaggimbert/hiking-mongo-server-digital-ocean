@@ -23,7 +23,6 @@ const Schema = mongoose.Schema;
 const postSchema = new Schema(
   {
     createddate: String,
-    title: String,
     description: String,
     lat: Number,
     lng: Number,
@@ -45,8 +44,15 @@ app.get("/jackData", async (req, res, next) => {
 
 app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
   let post = {
-    createddate: new Date(),
-    title: req.body.title,
+    createddate: new Date().toLocaleDateString("en-us", {
+      weekday: "long",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour12: "true",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
     description: req.body.description,
     lat: req.body.lat,
     lng: req.body.lng,
@@ -71,7 +77,6 @@ app.put("/jackData", isAuth, bodyParser.json(), async (req, res) => {
       console.error("error, no post found with id: ", id);
       res.status(500).send(`Error while attempting to edit post: ${error}`);
     } else {
-      post.title = req.body.title;
       post.description = req.body.description;
       post.lat = req.body.lat;
       post.lng = req.body.lng;
