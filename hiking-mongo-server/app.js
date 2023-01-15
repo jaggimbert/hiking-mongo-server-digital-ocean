@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 
 const isAuth = (req, res, next) => {
   const auth = req.headers.authorization;
-  console.log(auth);
   if (auth === "Basic amFjcXVlczpNeU1hbkphY2t5Qm95") {
     next();
   } else {
