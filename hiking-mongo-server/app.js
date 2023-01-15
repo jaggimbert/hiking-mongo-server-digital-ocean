@@ -33,7 +33,28 @@ const postSchema = new Schema(
 
 const postData = mongoose.model("PostData", postSchema);
 
+const authScema = new Schema(
+  {
+    username: String,
+    password: String,
+  },
+  { collection: "users" }
+);
+
+const authData = mongoose.model("AuthData", authScema);
+
 app.use(cors());
+
+// Retrieve jack data
+app.post("/auth", bodyParser.json(), async (req, res, next) => {
+  const docs = await authData.find({
+    username: req.body.username,
+    password: req.body.password,
+  });
+  const responseBody =
+    docs.length > 0 ? btoa(`${req.body.username}:${req.body.password}`) : "";
+  res.send(responseBody);
+});
 
 // Retrieve jack data
 app.get("/jackData", async (req, res, next) => {
