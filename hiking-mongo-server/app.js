@@ -52,7 +52,9 @@ app.post("/auth", bodyParser.json(), async (req, res, next) => {
     password: req.body.password,
   });
   const responseBody =
-    docs.length > 0 ? btoa(`${req.body.username}:${req.body.password}`) : "";
+    docs.length > 0
+      ? `Basic ${btoa(`${req.body.username}:${req.body.password}`)}`
+      : "";
   res.send(responseBody);
 });
 
