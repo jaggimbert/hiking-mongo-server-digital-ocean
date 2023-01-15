@@ -21,7 +21,9 @@ const Schema = mongoose.Schema;
 
 const postSchema = new Schema(
   {
+    id: String,
     createddate: String,
+    title: String,
     description: String,
     lat: Number,
     lng: Number,
@@ -75,6 +77,7 @@ app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
       hour: "2-digit",
       minute: "2-digit",
     }),
+    title: req.body.title,
     description: req.body.description,
     lat: req.body.lat,
     lng: req.body.lng,
