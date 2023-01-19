@@ -95,7 +95,7 @@ app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
 });
 
 app.put("/jackData", isAuth, bodyParser.json(), async (req, res) => {
-  console.log("post: ", req.body);
+  console.log("post: ", req.body.post);
   console.log("id: ", req.body.post["_id"]);
   let id = req.body.post["_id"];
 
