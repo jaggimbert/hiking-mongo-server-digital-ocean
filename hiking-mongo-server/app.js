@@ -96,18 +96,15 @@ app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
 
 app.put("/jackData", isAuth, bodyParser.json(), async (req, res) => {
   console.log("post id: ", req.body._id);
-  let id = req.body._id;
+  let body = req.body;
 
-  postData.findById(id, (err, post) => {
+  postData.findById(body._id, (err, post) => {
     if (err) {
-      console.error("error, no post found with id: ", id);
       res.status(500).send(`Error while attempting to edit post: ${error}`);
     } else {
-      post.title = req.body.title;
-      post.description = req.body.description;
-      post.lat = req.body.lat;
-      post.lng = req.body.lng;
-      post.video_url = req.body.video_url;
+      post.title = body.title ? body.title : "";
+      post.description = body.description ? body.description : "";
+      post.video_url = body.video_url ? body.video_url : "";
 
       try {
         post.save();
