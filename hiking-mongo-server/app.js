@@ -96,7 +96,7 @@ app.post("/jackData", isAuth, bodyParser.json(), (req, res, next) => {
 
 app.put("/jackData", isAuth, bodyParser.json(), async (req, res) => {
   let id = req.body.id;
-
+  console.log("post: ", req.body);
   postData.findById(id, (err, post) => {
     if (err) {
       console.error("error, no post found with id: ", id);
