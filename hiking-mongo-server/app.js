@@ -126,5 +126,24 @@ app.delete("/jackData", isAuth, bodyParser.json(), async (req, res) => {
   }
 });
 
-// app.listen(5000);
-app.listen(80);
+// Listen both http & https ports
+const httpServer = http.createServer(app);
+const httpsServer = https.createServer(
+  {
+    key: fs.readFileSync(
+      "/etc/letsencrypt/live/jackontheatserver.com/privkey.pem"
+    ),
+    cert: fs.readFileSync(
+      "/etc/letsencrypt/live/jackontheatserver.com/fullchain.pem"
+    ),
+  },
+  app
+);
+
+httpServer.listen(80, () => {
+  console.log("HTTP Server running on port 80");
+});
+
+httpsServer.listen(443, () => {
+  console.log("HTTPS Server running on port 443");
+});
