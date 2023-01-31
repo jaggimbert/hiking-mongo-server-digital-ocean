@@ -127,4 +127,4 @@ app.delete("/jackData", isAuth, bodyParser.json(), async (req, res) => {
 });
 
 // app.listen(5000);
-app.listen();
+app.listen(80);
