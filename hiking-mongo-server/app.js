@@ -46,6 +46,7 @@ const authScema = new Schema(
 const authData = mongoose.model("AuthData", authScema);
 
 app.use(cors());
+app.use(express.static(__dirname + "/static", { dotfiles: "allow" }));
 
 // Retrieve jack data
 app.post("/auth", bodyParser.json(), async (req, res, next) => {
